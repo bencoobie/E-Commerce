@@ -1,0 +1,103 @@
+version: "3.9"
+
+services:
+  e-commerce:
+    container_name: bencoobie-e-commerce
+    environment:
+      MONGO_URI: mongodb+srv://kubikarabag:<password>@cluster0.em7xmkt.mongodb.net/?retryWrites=true&w=majority
+      REDIS_URI: redis://redis:6379
+      RABBIT_URI: amqp://rabbitmq:5672
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8080"
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - redis
+      - rabbitmq
+      - mongo
+    command: npm start
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
+    ports:
+      - 5672:5672
+      - 15673:15672
+    volumes:
+      - rabbitmq:/var/lib/rabbitmq
+  mongo:
+    image: mongo
+    container_name: mongo
+    ports:
+      - "27017:27017"
+volumes:
+  mongo:
+  rabbitmq:
+# version: "3.9"
+# services:
+#   backend:
+#     build: ./backend
+#     container_name: backend
+#     environment:
+#       MONGODB_CONNECTION_STRING: "mongodb://mongodb:27017"
+#       REDIS_URL: redis://redis:6379
+#       RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+#     ports:
+#       - 3000:3000
+#     volumes:
+#       - ./backend:/usr/src/app/backend
+#       - /usr/src/app/backend/node_modules
+#     depends_on:
+#       mongodb:
+#         condition: service_started
+#       redis:
+#         condition: service_started
+#       rabbitmq:
+#         condition: service_healthy
+#     networks:
+#       - my_network
+#   mongodb:
+#     container_name: mongodb
+#     image: mongo:latest
+#     ports:
+#       - 27017:27017
+#     restart: always
+#     volumes:
+#       - mongodb:/data/db
+#     networks:
+#       - my_network
+#   redis:
+#     image: redis
+#     container_name: redis
+#     ports:
+#       - 6379:6379
+#     restart: always
+#     networks:
+#       - my_network
+#   rabbitmq:
+#     image: rabbitmq:3-management-alpine
+#     container_name: rabbitmq
+#     ports:
+#       - 5672:5672
+#       - 15672:15672
+#     volumes:
+#       - rabbitmq:/var/lib/rabbitmq
+#     networks:
+#       - my_network
+#     healthcheck:
+#       test: ["CMD", "rabbitmqctl", "status"]
+#       interval: 30s
+#       timeout: 10s
+#       retries: 5
+# volumes:
+#   mongodb:
+#   rabbitmq:
+# networks:
+#   my_network:
